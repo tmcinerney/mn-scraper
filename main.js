@@ -1,10 +1,11 @@
-// Modules
-const mumsnet = require("./mumsnet/lib");
+// Imports
 const fs = require("fs");
 const path = require("path");
 const program = require("commander");
-const spawn = require("child_process").spawn;
 
+// Modules
+const mumsnet = require("./mumsnet/lib");
+const utils = require("./utils");
 // Concurrent promises
 const concurrency = 5;
 const limit = require("p-limit")(concurrency);
@@ -15,6 +16,7 @@ let wrapperTemplate;
 let threadTemplate;
 let postTemplate;
 
+
 // Arguments
 program
 	.option("-e <email>", "The email address of the account")
@@ -24,7 +26,8 @@ program
 	.option("-q <query>", "The string to match")
 	.option("-o <dir>", "The output directory")
 	.option("-n <num>", "The number of threads to parse")
-	.option("-c", "Include number of comments in filenames");
+	.option("-c", "Include number of comments in filenames")
+	.option("-a <id>", "A chosen topic ID to narrow down the search", utils.collect, []);
 
 // Default options
 let options = {
@@ -32,18 +35,6 @@ let options = {
 	dir: "/output",	// The default output dir
 	includeComments: false
 };
-
-function createDirs(dirs) {
-	return new Promise((resolve, reject) => {
-		let child = spawn("mkdir", ["-p", dirs]);
-		child.on("exit", (code) => {
-			if (code == 0)
-				resolve();
-			else
-				reject();
-		});
-	});
-}
 
 function generateHTML(thread, query, dir) {
 	let postsHTML = thread.posts.map((post, i) => {
@@ -64,7 +55,7 @@ async function writeSplitOutput(threads, query, format, outputDir, includeCommen
 	await Promise.all(threads.map((thread) => limit(async () => {
 		// Create dirs
 		let dir = path.join(outputDir, query);
-		await createDirs(dir);
+		await utils.createDirs(dir);
 
 		// Generate output
 		let output = format == "json" ? JSON.stringify(thread) : generateHTML(thread, query, dir);
@@ -104,6 +95,7 @@ async function init() {
 	options.query = parsed.Q;
 	options.dir = parsed.O ? parsed.O : path.join(__dirname, options.dir);
 	options.includeComments = parsed.C;
+	options.topics = parsed.A;
 
 	// Perform authentication
 	// TODO: Check session token before usage.
@@ -115,7 +107,7 @@ async function init() {
 		console.log(`Authentication successful. Session token: "${mumsnet.getSessionToken()}".`);
 
 	// Perform search
-	let threads = await mumsnet.search(options.query);
+	let threads = await mumsnet.search(options.query, options.topics);
 	console.log(`Found ${threads.length} thread${threads.length == 1 ? "" : "s"}.`);
 	if (threads.length == 0)
 		return;

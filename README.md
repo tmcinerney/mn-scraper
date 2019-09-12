@@ -18,7 +18,9 @@ Scrapes MumsNet threads into JSON/simplified HTML formats.
 	- `-q <query>` The search query [required]
 	- `-f <format>` The output format [optional] `(html|json)`
 	- `-o <dir>` The output directory [optional] - default is `/output` in the project folder
-	- `-n <num>` Limit the number of threads that get scraped
+	- `-n <num>` Limit the number of threads that get scraped [optional]
+	- `-c` Include the number of comments in a thread in the filename [optional]
+	- `-a` Search for a specific topic (or multiple topics)
 
 ## Example usage
 Login using an email and password combination (foo@example.com, bar), and scrape all threads containing "hello":
@@ -32,6 +34,13 @@ Login using an email and password combination (foo@example.com, bar), and scrape
 Login using an email and password combination (foo@example.com, bar), and save the threads in JSON format:
 
 `node main -e foo@example.com -p bar -q hello -f json`
+
+Login using an email and password combination (foo@example.com, bar), and search for "hello" in the topic "Adoption" (topic ID is 2418):
+
+`node main -e foo@example.com -p bar -q hello -a 2418`
+
+Login using an email and password combination (foo@example.com, bar), and search for "hello" in the topic "Adoption" and "Arts and crafts: (topic IDs are 2418 and 2280):
+`node main -e foo@example.com -p bar -q hello -a 2418 -a 2280`
 
 Login using a session token and scrape all threads containing "hello":
 

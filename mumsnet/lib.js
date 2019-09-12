@@ -85,8 +85,10 @@ module.exports = {
 			});
 		});
 	},
-	async search(mustMatch = "", noMatch = "", nickname = "") {
-		let result = await this.request(`/SearchArch?mustmatch=${encodeURIComponent(mustMatch)}&dontmatch=${encodeURIComponent(noMatch)}&nickname=${encodeURIComponent(nickname)}&src_displ_option=s_m_d_m&fromDate=&toDate=&topicmode=All&availtops=-1`, "GET");
+	async search(mustMatch = "", topics = []) {
+		let topicsString = topics.reduce((previous, current) => previous += `&chosentops=${current}`, "");
+		let result = await this.request(`/SearchArch?mustmatch=${encodeURIComponent(mustMatch)}&dontmatch=&nickname=&src_displ_option=s_m_d_m&fromDate=&toDate=&topicmode=${topics.length == 0 ? "All" : "chs"}${topicsString}`, "GET");
+
 		if (!result)
 			return false;
 		
