@@ -1,0 +1,87 @@
+body {
+	font-family: sans-serif;
+	margin: 0; padding: 0;
+	background-color: #fafafa;
+}
+
+h1, h2 {
+	margin: 0px;
+}
+
+p {
+
+}
+
+.thread {
+	max-width: 960px;
+	box-sizing: border-box;
+	margin: 20px auto;
+	border-radius: 3px;
+	padding: 40px 60px;
+	background-color: white;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.divider {
+	width: 90%;
+	height: 1px;
+	margin: 40px auto;
+	background-color: #eee;
+}
+
+.post {
+
+}
+
+.post > .header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	background-color: #fafafa;
+	padding: 15px 20px;
+	border-radius: 5px 5px 0px 0px;
+	color: #444;
+	font-size: 0.9rem;
+}
+
+.post > .header > .subtitle {
+	margin: 2px 0px;
+	flex-grow: 1;
+}
+
+.post > .header > .subtitle > .info > .spacer {
+	
+}
+
+.post > .header > .subtitle > .index {
+	font-weight: 600;
+	color: #222;
+}
+
+.post > .header > .date {
+	font-size: 0.7rem;
+	color: #777;
+	margin: 0;
+	flex-grow: 0;
+}
+
+.post > .content {
+	color: #222;
+	font-size: 0.9rem;
+	padding: 10px 20px;
+}
+
+.footer {
+	text-align: center;
+	color: #aaa;
+}
+
+a {
+	text-decoration: none;
+	color: black;
+	transition: color 0.2s;
+}
+
+a:hover {
+	color: rgba(0, 0, 0, 0.6);
+}
