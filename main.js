@@ -23,12 +23,14 @@ program
 	.option("-f <format>", "The output format (json|html)")
 	.option("-q <query>", "The string to match")
 	.option("-o <dir>", "The output directory")
-	.option("-n <num>", "The number of threads to parse");
+	.option("-n <num>", "The number of threads to parse")
+	.option("-c", "Include number of comments in filenames");
 
 // Default options
 let options = {
 	format: "html", // ["html", "json"]
-	dir: "/output"	// The default output dir
+	dir: "/output",	// The default output dir
+	includeComments: false
 };
 
 function createDirs(dirs) {
@@ -58,7 +60,7 @@ function generateHTML(thread, query, dir) {
 	return wrapperHTML;
 }
 
-async function writeSplitOutput(threads, query, format, outputDir) {
+async function writeSplitOutput(threads, query, format, outputDir, includeComments) {
 	await Promise.all(threads.map((thread) => limit(async () => {
 		// Create dirs
 		let dir = path.join(outputDir, query);
@@ -68,7 +70,7 @@ async function writeSplitOutput(threads, query, format, outputDir) {
 		let output = format == "json" ? JSON.stringify(thread) : generateHTML(thread, query, dir);
 
 		// Write the file
-		await fs.promises.writeFile(path.join(dir, `${thread.info.id}.${format}`), output);
+		await fs.promises.writeFile(path.join(dir, `${thread.info.id}${includeComments ? `_${thread.posts.length}` : ""}.${format}`), output);
 	})));
 }
 
@@ -101,6 +103,7 @@ async function init() {
 	options.format = parsed.F ? parsed.F : options.format;
 	options.query = parsed.Q;
 	options.dir = parsed.O ? parsed.O : path.join(__dirname, options.dir);
+	options.includeComments = parsed.C;
 
 	// Perform authentication
 	// TODO: Check session token before usage.
@@ -119,7 +122,7 @@ async function init() {
 
 	// Scrape the threads
 	let scrapedThreads = await mumsnet.scrapeThreads(options.num && !isNaN(options.num) && options.num < threads.length ? threads.splice(0, options.num) : threads);
-	await writeSplitOutput(scrapedThreads, options.query, options.format, options.dir);
+	await writeSplitOutput(scrapedThreads, options.query, options.format, options.dir, options.includeComments);
 	console.log(`${scrapedThreads.length} thread${scrapedThreads.length == 1 ? "" : "s"} written to "${options.dir}".\nDone.`);
 }
 

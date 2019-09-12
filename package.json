@@ -1,0 +1,30 @@
+{
+  "name": "mn-scraper",
+  "version": "1.0.0",
+  "description": "Scrapes MumsNet threads into JSON/simplified HTML formats.",
+  "main": "main.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "cli-progress": "^3.1.0",
+    "commander": "^3.0.1",
+    "p-limit": "^2.2.1",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frannyfx/mn-scraper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/frannyfx/mn-scraper/issues"
+  },
+  "homepage": "https://github.com/frannyfx/mn-scraper#readme"
+}
