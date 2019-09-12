@@ -1,6 +1,8 @@
 # mn-scraper
 Scrapes MumsNet threads into JSON/simplified HTML formats.
 
+![Screenshot of HTML output](docs/img/screenshot.png)
+
 ## How to install
 - Clone the repository using Git
 - [Install Node.js](https://nodejs.org/en/download/current/)
