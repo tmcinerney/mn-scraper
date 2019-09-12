@@ -54,7 +54,7 @@ function generateHTML(thread, query, dir) {
 	}).join("");
 
 	let threadHTML = threadTemplate.replace("{{title}}", thread.info.title).replace("{{posts}}", postsHTML).replace("{{thread_url}}", "https://www.mumsnet.com/" + thread.info.url);
-	let wrapperHTML = wrapperTemplate.replace("{{content}}", threadHTML).replace("{{css_link}}", path.relative(dir, path.join(templatesDir, "styles.css")));
+	let wrapperHTML = wrapperTemplate.replace("{{title}}", thread.info.title).replace("{{content}}", threadHTML).replace("{{css_link}}", path.relative(dir, path.join(templatesDir, "styles.css")));
 	return wrapperHTML;
 }
 
