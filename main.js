@@ -6,6 +6,7 @@ const program = require("commander");
 // Modules
 const mumsnet = require("./mumsnet/lib");
 const utils = require("./utils");
+
 // Concurrent promises
 const concurrency = 5;
 const limit = require("p-limit")(concurrency);
@@ -27,7 +28,8 @@ program
 	.option("-o <dir>", "The output directory")
 	.option("-n <num>", "The number of threads to parse")
 	.option("-c", "Include number of comments in filenames")
-	.option("-a <id>", "A chosen topic ID to narrow down the search", utils.collect, []);
+	.option("-a <id>", "A chosen topic ID to narrow down the search", utils.collect, [])
+	.option("--from <date>", "The start date");
 
 // Default options
 let options = {
@@ -96,6 +98,7 @@ async function init() {
 	options.dir = parsed.O ? parsed.O : path.join(__dirname, options.dir);
 	options.includeComments = parsed.C;
 	options.topics = parsed.A;
+	options.from = parsed.from;
 
 	// Perform authentication
 	// TODO: Check session token before usage.
@@ -107,7 +110,7 @@ async function init() {
 		console.log(`Authentication successful. Session token: "${mumsnet.getSessionToken()}".`);
 
 	// Perform search
-	let threads = await mumsnet.search(options.query, options.topics);
+	let threads = await mumsnet.search(options.query, options.topics, options.from);
 	console.log(`Found ${threads.length} thread${threads.length == 1 ? "" : "s"}.`);
 	if (threads.length == 0)
 		return;
