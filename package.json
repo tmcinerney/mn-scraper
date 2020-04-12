@@ -14,17 +14,14 @@
     "request": "^2.88.0"
   },
   "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/frannyfx/mn-scraper.git"
+    "url": "git+https://github.com/tmcinerney/mn-scraper.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/frannyfx/mn-scraper/issues"
+    "url": "https://github.com/tmcinerney/mn-scraper/issues"
   },
-  "homepage": "https://github.com/frannyfx/mn-scraper#readme"
+  "homepage": "https://github.com/tmcinerney/mn-scraper#readme"
 }

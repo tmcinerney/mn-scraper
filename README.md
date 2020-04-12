@@ -1,5 +1,5 @@
 # mn-scraper
-Scrapes MumsNet threads into JSON/simplified HTML formats.
+Scrapes MumsNet threads into JSON/simplified HTML formats, shamelessly taken from https://github.com/frannyfx/mn-scraper.
 
 ![Screenshot of HTML output](docs/img/screenshot.png)
 
@@ -10,7 +10,15 @@ Scrapes MumsNet threads into JSON/simplified HTML formats.
 - Run `npm install`
 
 ## How to use
-- To run, execute `node main`;
+
+### Helper mode
+To run the helper application:
+- Execute `./bin/search`.
+- Command line options can be listed by running `./bin/search -h`.
+
+### Advanced mode
+To run the underlying application:
+- Execute `node main`.
 - Here are the command line options:
 	- `-e <email>` Email address [required or use session token]
 	- `-p <password>` Password [required or use session token]
@@ -21,8 +29,10 @@ Scrapes MumsNet threads into JSON/simplified HTML formats.
 	- `-n <num>` Limit the number of threads that get scraped [optional]
 	- `-c` Include the number of comments in a thread in the filename [optional]
 	- `-a` Search for a specific topic (or multiple topics)
+	- `--from` Search from a specified date in DD/MM/YY format.
+	- `--to` Search to a specified date in DD/MM/YY format (used in addition to the `--from`).
 
-## Example usage
+#### Example usage
 Login using an email and password combination (foo@example.com, bar), and scrape all threads containing "hello":
 
 `node main -e foo@example.com -p bar -q hello`
