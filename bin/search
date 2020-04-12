@@ -1,0 +1,144 @@
+#!/usr/bin/env bash
+#
+# search
+#
+
+#
+# Return an error message and exit from the script.
+#
+fatal() {
+  >&2 echo "[FATAL] $1";
+  exit 1;
+}
+
+#
+# Main search helper that runs the mn-scraper code.
+#
+search() {
+  # Command line parsing; allows ordering options and arguments as wanted.
+  local dateFrom="";
+  local dateTo="";
+  local email="${MUMSNET_EMAIL}";
+  local format="json";
+  local limit="0";
+  local password="${MUMSNET_PASSWORD}";
+  local query="";
+  local topic="67";
+  local nonOpts=();
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --email)
+        shift;
+        if [ ! -z "$1" ]; then
+          email="$1";
+        fi;
+        ;;
+      --format)
+        shift;
+        if [ ! -z "$1" ]; then
+          format="$1";
+        fi;
+        ;;
+      --from)
+        shift;
+        if [ ! -z "$1" ]; then
+          dateFrom="$1";
+        fi;
+        ;;
+      --limit)
+        shift;
+        if [ ! -z "$1" ]; then
+          limit="$1";
+        fi;
+        ;;
+      --password)
+        shift;
+        if [ ! -z "$1" ]; then
+          password="$1";
+        fi;
+        ;;
+      --query)
+        shift;
+        if [ ! -z "$1" ]; then
+          query="$1";
+        fi;
+        ;;
+      --to)
+        shift;
+        if [ ! -z "$1" ]; then
+          dateTo="$1";
+        fi;
+        ;;
+      --topic)
+        shift;
+        if [ ! -z "$1" ]; then
+          topic="$1";
+        fi;
+        ;;
+      --help|-h|-\?)
+        # Usage instructions.
+        usage;
+        ;;
+      --)
+        # End of options parsing (allows for dash-prefixed filename arguments, etc.).
+        shift;
+        break;
+        ;;
+      *)
+        # Non-option argument.
+        nonOpts+=("$1");
+        ;;
+    esac;
+    shift;
+  done;
+
+  nonOpts+=("$@"); # Pickup extra arguments, if '--' was specified.
+  set -- "${nonOpts[@]}";
+
+  # Set the tag from the remaining options.
+  query="$@";
+
+  # Show parameters
+  echo "Params =>";
+  echo "  email=${email}";
+  echo "  format=${format}";
+  echo "  from=${dateFrom}";
+  echo "  limit=${limit}";
+  echo "  query=${query}";
+  echo "  to=${dateTo}";
+  echo "  topic=${topic}";
+
+  # Execute commands.
+  node main -e "${email}" -p "${password}" -a "${topic}" -f "${format}" -n "${limit}" --from "${dateFrom}" --to "${dateTo}" -q "${query}";
+}
+
+#
+# Shows command line usage instructions, output to stderr. The script then
+# exits with return code 1.
+#
+usage() {
+  if [ -n "$1" ]; then
+    >&2 echo "$1";
+  fi;
+
+  >&2 cat <<USAGE_EOF
+Scrape Mumsnet forums.
+
+usage: search QUERY
+  Parameters:
+    QUERY                                     The value you want to search for.
+  Options:
+    --email          EMAIL                    The email address you log into Mumsnet with.
+    --format         STRING     (Optional)    Either 'json' or 'html'. Defaults to 'json'.
+    --from           DATE       (Optional)    Filter results from a date in DD/MM/YY format.
+    --limit          NUMBER     (Optional)    The numnber of results to limit to. Omit, or set to '0' to have unrestricted results. Defaults to '0'.
+    --password       PASSWORD                 The password you log into Mumsnet with.
+    --to             DATE       (Optional)    In conjunction with a '--from' date, filter results to an end date in DD/MM/YY format.
+    --topic          NUMBER     (Optional)    The Mumsnet Topic ID to restrict the search to.
+
+USAGE_EOF
+    exit 1;
+}
+
+search "$@";

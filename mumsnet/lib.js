@@ -85,13 +85,14 @@ module.exports = {
 			});
 		});
 	},
-	async search(mustMatch = "", topics = [], from = "") {
+	async search(mustMatch = "", topics = [], from = "", to="") {
 		let topicsString = topics.reduce((previous, current) => previous += `&chosentops=${current}`, "");
-		let result = await this.request(`/SearchArch?mustmatch=${encodeURIComponent(mustMatch)}&dontmatch=&nickname=&src_displ_option=s_m_d_m&fromDate=${encodeURIComponent(from)}&toDate=&topicmode=${topics.length == 0 ? "All" : "chs"}${topicsString}`, "GET");
-
+		let searchOption = 's_t_d_t';
+		let pathAndQueryString = `/SearchArch?mustmatch=${encodeURIComponent(mustMatch)}&dontmatch=&nickname=&src_displ_option=${encodeURIComponent(searchOption)}&fromDate=${encodeURIComponent(from)}&toDate=${encodeURIComponent(to)}&topicmode=${topics.length == 0 ? "All" : "chs"}${topicsString}`;
+		let result = await this.request(pathAndQueryString, "GET");
 		if (!result)
 			return false;
-		
+
 		// Parse HTML
 		let $ = cheerio.load(result);
 		let results = [];
@@ -115,9 +116,12 @@ module.exports = {
 
 		return results;
 	},
-	async scrapeThread(thread, page = 1) {
-		//console.log("Scraping", thread.id);
-		let result = await this.request(`/${thread.url}?pg=${page}&messages=100`, "GET");
+	// NOTE: Set the `message` parameter default to `1` instead of `100` since we are only 
+	//       rendering the first post. A `message` size of `1` essentially means there will
+	//       be more pages to render.
+	//       i.e. 30 pages with 1 post, instead of 1 page with 30 posts.
+	async scrapeThread(thread, messages = 1, page = 1) {
+		let result = await this.request(`/${thread.url}?pg=${page}&messages=${messages}`, "GET");
 		if (!result)
 			return false;
 
@@ -125,8 +129,9 @@ module.exports = {
 		let $ = cheerio.load(result);
 
 		// Parse posts
+		// NOTE: Currently restricted to the first post only.
 		let posts = [];
-		$("#posts").children(".post").map((index, element) => {
+		$("#posts").children(".post").first().map((index, element) => {
 			// Skip first post if the page isn't the first
 			if (page != 1 && index == 0)
 				return;
@@ -152,22 +157,24 @@ module.exports = {
 			});
 		});
 
+		/*
+		// NOTE: Currently disabling the recursion as we only care about the title and first post.
 		// Parse page numbers and get the next page's posts if necessary
 		try {
 			let pagesText = $(".thread_links > .message_pages > .pages > p").first().text();
 			let numPages = parseInt(pagesText.split("of ")[1].split(" ")[0]);
 			if (page < numPages)
-				posts = posts.concat(await this.scrapeThread(thread, page + 1));
+				posts = posts.concat(await this.scrapeThread(thread, messages, page + 1));
 		} catch (e) {
 			return [];
-		}
+		}*/
 		
 		return posts;
 	},
 	async scrapeThreads(threads) {
 		// Get start date and log
 		let start = new Date();
-		console.log(`Scraping ${threads.length} thread${threads.length == 1 ? "" : "s"}...`);
+		// console.debug(`Scraping ${threads.length} thread${threads.length == 1 ? "" : "s"}...`);
 
 		// Create progress bar
 		let bar = new progress.Bar({}, progress.Presets.rect);
@@ -192,7 +199,7 @@ module.exports = {
 
 		let k = 0;
 		let results = await Promise.all(threads.map((thread, i) => limit(async () => {
-			let result = await this.scrapeThread(thread);
+			let result = await this.scrapeThread(thread); // TODO: Would need to parse the `message` count.
 			bar.update(++k);
 			return {
 				info: thread,
@@ -205,7 +212,7 @@ module.exports = {
 
 		// Log duration
 		let duration = Math.ceil((new Date().getTime() - start.getTime()) / 1000);
-		console.log(`Scraped ${threads.length} thread${threads.length == 1 ? "" : "s"} in ${duration} second${duration == 1 ? "" : "s"}.`);
+		//console.debug(`Scraped ${threads.length} thread${threads.length == 1 ? "" : "s"} in ${duration} second${duration == 1 ? "" : "s"}.`);
 		return results;
 	},
 	setSessionToken(token) {

@@ -17,7 +17,6 @@ let wrapperTemplate;
 let threadTemplate;
 let postTemplate;
 
-
 // Arguments
 program
 	.option("-e <email>", "The email address of the account")
@@ -29,7 +28,8 @@ program
 	.option("-n <num>", "The number of threads to parse")
 	.option("-c", "Include number of comments in filenames")
 	.option("-a <id>", "A chosen topic ID to narrow down the search", utils.collect, [])
-	.option("--from <date>", "The start date");
+	.option("--from <date>", "The start date in DD/MM/YY format")
+	.option("--to <date>", "The end date in DD/MM/YY format when used with a --from");
 
 // Default options
 let options = {
@@ -99,6 +99,7 @@ async function init() {
 	options.includeComments = parsed.C;
 	options.topics = parsed.A;
 	options.from = parsed.from;
+	options.to = parsed.to ? parsed.to : '';
 
 	// Perform authentication
 	// TODO: Check session token before usage.
@@ -110,7 +111,8 @@ async function init() {
 		console.log(`Authentication successful. Session token: "${mumsnet.getSessionToken()}".`);
 
 	// Perform search
-	let threads = await mumsnet.search(options.query, options.topics, options.from);
+	let threads = await mumsnet.search(options.query, options.topics, options.from, options.to);
+
 	console.log(`Found ${threads.length} thread${threads.length == 1 ? "" : "s"}.`);
 	if (threads.length == 0)
 		return;
