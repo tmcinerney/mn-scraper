@@ -116,11 +116,9 @@ module.exports = {
 
 		return results;
 	},
-	// NOTE: Set the `message` parameter default to `1` instead of `100` since we are only 
-	//       rendering the first post. A `message` size of `1` essentially means there will
-	//       be more pages to render.
+	// NOTE: A `message` size of `1` essentially means there will be more pages to render.
 	//       i.e. 30 pages with 1 post, instead of 1 page with 30 posts.
-	async scrapeThread(thread, messages = 1, page = 1) {
+	async scrapeThread(thread, messages = 100, page = 1) {
 		let result = await this.request(`/${thread.url}?pg=${page}&messages=${messages}`, "GET");
 		if (!result)
 			return false;
@@ -129,9 +127,8 @@ module.exports = {
 		let $ = cheerio.load(result);
 
 		// Parse posts
-		// NOTE: Currently restricted to the first post only.
 		let posts = [];
-		$("#posts").children(".post").first().map((index, element) => {
+		$("#posts").children(".post").map((index, element) => {
 			// Skip first post if the page isn't the first
 			if (page != 1 && index == 0)
 				return;
@@ -157,8 +154,6 @@ module.exports = {
 			});
 		});
 
-		/*
-		// NOTE: Currently disabling the recursion as we only care about the title and first post.
 		// Parse page numbers and get the next page's posts if necessary
 		try {
 			let pagesText = $(".thread_links > .message_pages > .pages > p").first().text();
@@ -167,14 +162,14 @@ module.exports = {
 				posts = posts.concat(await this.scrapeThread(thread, messages, page + 1));
 		} catch (e) {
 			return [];
-		}*/
+		}
 		
 		return posts;
 	},
 	async scrapeThreads(threads) {
 		// Get start date and log
 		let start = new Date();
-		// console.debug(`Scraping ${threads.length} thread${threads.length == 1 ? "" : "s"}...`);
+		console.log(`Scraping ${threads.length} thread${threads.length == 1 ? "" : "s"}...`);
 
 		// Create progress bar
 		let bar = new progress.Bar({}, progress.Presets.rect);
@@ -212,7 +207,7 @@ module.exports = {
 
 		// Log duration
 		let duration = Math.ceil((new Date().getTime() - start.getTime()) / 1000);
-		//console.debug(`Scraped ${threads.length} thread${threads.length == 1 ? "" : "s"} in ${duration} second${duration == 1 ? "" : "s"}.`);
+		console.log(`Scraped ${threads.length} thread${threads.length == 1 ? "" : "s"} in ${duration} second${duration == 1 ? "" : "s"}.`);
 		return results;
 	},
 	setSessionToken(token) {

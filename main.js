@@ -53,10 +53,14 @@ function generateHTML(thread, query, dir) {
 	return wrapperHTML;
 }
 
-async function writeSplitOutput(threads, query, format, outputDir, includeComments) {
+async function writeSplitOutput(threads, options) {
+	const { dir: outputDir, format, from, includeComments, query } = options;
 	await Promise.all(threads.map((thread) => limit(async () => {
+
 		// Create dirs
-		let dir = path.join(outputDir, query);
+		let queryDir = query.trim().length === 0 ? 'all': query;
+		let threadDir = `${from.replace(/\//g, '')}_${threads.length}`;
+		let dir = path.join(outputDir, queryDir, threadDir);
 		await utils.createDirs(dir);
 
 		// Generate output
@@ -119,7 +123,7 @@ async function init() {
 
 	// Scrape the threads
 	let scrapedThreads = await mumsnet.scrapeThreads(options.num && !isNaN(options.num) && options.num < threads.length ? threads.splice(0, options.num) : threads);
-	await writeSplitOutput(scrapedThreads, options.query, options.format, options.dir, options.includeComments);
+	await writeSplitOutput(scrapedThreads, options);
 	console.log(`${scrapedThreads.length} thread${scrapedThreads.length == 1 ? "" : "s"} written to "${options.dir}".\nDone.`);
 }
 

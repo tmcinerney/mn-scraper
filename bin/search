@@ -16,6 +16,7 @@ fatal() {
 #
 search() {
   # Command line parsing; allows ordering options and arguments as wanted.
+  local clean=false;
   local dateFrom="";
   local dateTo="";
   local email="${MUMSNET_EMAIL}";
@@ -28,6 +29,9 @@ search() {
 
   while [ $# -gt 0 ]; do
     case "$1" in
+      --clean)
+        clean="true";
+        ;;
       --email)
         shift;
         if [ ! -z "$1" ]; then
@@ -101,6 +105,7 @@ search() {
 
   # Show parameters
   echo "Params =>";
+  echo "  clean=${clean}";
   echo "  email=${email}";
   echo "  format=${format}";
   echo "  from=${dateFrom}";
@@ -109,8 +114,13 @@ search() {
   echo "  to=${dateTo}";
   echo "  topic=${topic}";
 
+  # Remove the output directory first.
+  if [ "${clean}" == "true" ]; then
+    rm -rf ./output;
+  fi;
+
   # Execute commands.
-  node main -e "${email}" -p "${password}" -a "${topic}" -f "${format}" -n "${limit}" --from "${dateFrom}" --to "${dateTo}" -q "${query}";
+  node main -e "${email}" -p "${password}" -a "${topic}" -f "${format}" -n "${limit}" --from "${dateFrom}" --to "${dateTo}" -c -q "${query}";
 }
 
 #
@@ -129,6 +139,7 @@ usage: search QUERY
   Parameters:
     QUERY                                     The value you want to search for.
   Options:
+    --clean                     (Optional)    Remove the output directory before executing the query.
     --email          EMAIL                    The email address you log into Mumsnet with.
     --format         STRING     (Optional)    Either 'json' or 'html'. Defaults to 'json'.
     --from           DATE       (Optional)    Filter results from a date in DD/MM/YY format.
